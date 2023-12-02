@@ -1,53 +1,44 @@
 package edu.cmu.cs.cs214.rec09.plugin;
 
-import java.util.*;
-
 import edu.cmu.cs.cs214.rec09.framework.core.GameFramework;
 import edu.cmu.cs.cs214.rec09.framework.core.GamePlugin;
 import edu.cmu.cs.cs214.rec09.games.TicTacToe;
 
-public class TicTacToePlugin  implements GamePlugin<String> {
-
-    private static final String GAME_NAME = "TicTacToe Scissors";
-
-    private static final int WIDTH = 3;
-    private static final int HEIGHT = 3;
+public class TicTacToePlugin implements GamePlugin<TicTacToe.Player> {
+    private static final String GAME_START_FOOTER = "Let's play Tic Tac Toe!";
     private GameFramework framework;
     private TicTacToe game;
 
     @Override
     public String getGameName() {
-        return GAME_NAME;
+        return "Tic Tac Toe";
     }
 
     @Override
     public int getGridWidth() {
-        return WIDTH;
+        return TicTacToe.SIZE;
     }
 
     @Override
     public int getGridHeight() {
-        return HEIGHT;
+        return TicTacToe.SIZE;
     }
 
     @Override
-    public void onRegister(GameFramework f) {
-        framework = f;
-        this.game = new TicTacToe();
+    public void onRegister(GameFramework framework) {
+        this.framework = framework;
     }
 
     @Override
     public void onNewGame() {
-        //framework.setFooterText(GAME_START_FOOTER);
-        // framework.setSquare(RockPaperScissors.ROCK.ordinal(), 0, "Rock");
-        // framework.setSquare(RockPaperScissors.PAPER.ordinal(), 0, "Paper");
-        // framework.setSquare(RockPaperScissors.SCISSORS.ordinal(), 0, "Scissors");
-        framework.setFooterText("New game started. Player " + game.currentPlayer() + " to play.");
+        framework.setFooterText(GAME_START_FOOTER);
         game = new TicTacToe();
     }
 
     @Override
-    public void onNewMove() { } // Nothing to do here.
+    public void onNewMove() {
+        // Nothing to do
+    }
 
     @Override
     public boolean isMoveValid(int x, int y) {
@@ -61,10 +52,8 @@ public class TicTacToePlugin  implements GamePlugin<String> {
 
     @Override
     public void onMovePlayed(int x, int y) {
-        game.play(x, y);
-        // Update the framework grid display
         framework.setSquare(x, y, game.currentPlayer().toString());
-        framework.setFooterText("Player " + game.currentPlayer() + "'s turn.");
+        game.play(x, y);
     }
 
     @Override
@@ -74,21 +63,18 @@ public class TicTacToePlugin  implements GamePlugin<String> {
 
     @Override
     public String getGameOverMessage() {
-        TicTacToe.Player winner = game.winner();
-        if (winner != null) {
-            return "Player " + winner + " wins!";
-        } else if (game.isOver()) {
-            return "The game is a draw!";
-        } else {
-            return "Game is not over yet!";
-        }
+        TicTacToe.Player possibleWinner = game.winner();
+        if (possibleWinner == null) return "The game ended in a tie.";
+        return String.format("%s won!", possibleWinner);
     }
 
     @Override
-    public void onGameClosed() { } // Nothing to do here.
+    public void onGameClosed() {
+        // Nothing to do.
+    }
 
     @Override
-    public String currentPlayer() {
-        return game.currentPlayer().name();
+    public TicTacToe.Player currentPlayer() {
+        return game.currentPlayer();
     }
 }
